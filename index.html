@@ -1,0 +1,566 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Fluxo - Seu dinheiro em movimento</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  
+  <style>
+    /* ===== FLUXO — DESIGN SYSTEM COMPLETO ===== */
+    :root {
+      /* Seus tokens originais */
+      --iris:    #7B6EF6;   --cyan:    #3ECFB2;   --coral:   #F06070;   --amber:   #F5A623;
+      --night:       #0f0d1a;   --night-2:     #1C1A2E;   --night-3:     #251f3d;
+      --glass-white: rgba(255,255,255,0.08);  --glass-iris:  rgba(123,110,246,0.12);
+      --glass-cyan:  rgba(62,207,178,0.10);
+      --border-glass:      rgba(255,255,255,0.12); --border-iris:       rgba(123,110,246,0.30);
+      --border-cyan:       rgba(62,207,178,0.25);
+      --text-primary:   rgba(255,255,255,0.95); --text-secondary: rgba(255,255,255,0.55);
+      --text-muted:     rgba(255,255,255,0.30);
+      --grad-brand: linear-gradient(135deg, #7B6EF6 0%, #3ECFB2 100%);
+      --grad-dark:  linear-gradient(135deg, #1a1535 0%, #0d2e2a 100%);
+      
+      /* Tipografia */
+      --text-xs:   clamp(11px, 2vw, 12px); --text-sm:   clamp(13px, 2.5vw, 14px);
+      --text-base: clamp(15px, 3vw, 16px); --text-lg:   clamp(18px, 3.5vw, 20px);
+      --text-xl:   clamp(24px, 4vw, 28px); --text-2xl:  clamp(32px, 5vw, 36px);
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    
+    body {
+      font-family: 'Inter', sans-serif;
+      background: var(--night);
+      color: var(--text-primary);
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    /* ===== LAYOUT ===== */
+    .app {
+      display: grid;
+      grid-template-columns: 280px 1fr;
+      grid-template-rows: 80px 1fr;
+      min-height: 100vh;
+      gap: 0;
+    }
+
+    /* ===== SIDEBAR ===== */
+    .sidebar {
+      grid-row: 1 / -1;
+      background: rgba(15,13,26,0.92);
+      border-right: 0.8px solid rgba(255,255,255,0.08);
+      backdrop-filter: blur(24px);
+      padding: 32px 0;
+    }
+
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 0 24px 40px;
+      margin-bottom: 40px;
+      border-bottom: 1px solid rgba(255,255,255,0.06);
+    }
+
+    .logo svg { width: 40px; height: 40px; }
+    .logo-text {
+      font-family: Georgia, serif;
+      font-weight: 700;
+      font-size: clamp(20px, 4vw, 24px);
+      background: var(--grad-brand);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .nav-list {
+      list-style: none;
+      padding: 0 24px;
+    }
+
+    .nav-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 12px 16px;
+      margin-bottom: 4px;
+      border-radius: 12px;
+      color: var(--text-secondary);
+      font-weight: 500;
+      text-decoration: none;
+      transition: all 0.2s ease;
+      cursor: pointer;
+    }
+
+    .nav-item.active,
+    .nav-item:hover {
+      background: rgba(123,110,246,0.15);
+      border-left: 3px solid var(--iris);
+      color: #b0a8ff;
+    }
+
+    /* ===== HEADER ===== */
+    .header {
+      background: rgba(15,13,26,0.92);
+      border-bottom: 0.8px solid rgba(255,255,255,0.08);
+      backdrop-filter: blur(20px);
+      padding: 0 32px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    .header-actions { display: flex; gap: 16px; align-items: center; }
+
+    /* ===== MAIN CONTENT ===== */
+    .main {
+      padding: 32px;
+      overflow-y: auto;
+      max-width: 1400px;
+    }
+
+    /* ===== CARDS ===== */
+    .card {
+      background: rgba(28, 26, 46, 0.80);
+      border: 0.8px solid rgba(255,255,255,0.12);
+      border-radius: 20px;
+      backdrop-filter: blur(20px) saturate(180%);
+      -webkit-backdrop-filter: blur(20px) saturate(180%);
+      box-shadow:
+        inset 0 1px 0 rgba(255,255,255,0.15),
+        0 4px 24px rgba(0,0,0,0.3);
+      padding: 24px;
+      transition: all 0.3s ease;
+    }
+
+    .card:hover {
+      transform: translateY(-2px);
+      box-shadow:
+        inset 0 1px 0 rgba(255,255,255,0.20),
+        0 8px 32px rgba(0,0,0,0.4);
+    }
+
+    .card--iris { background: rgba(123,110,246,0.12); border-color: rgba(123,110,246,0.30); }
+    .card--cyan { background: rgba(62,207,178,0.10);  border-color: rgba(62,207,178,0.25); }
+    .card--coral { background: rgba(240,96,112,0.10); border-color: rgba(240,96,112,0.25); }
+
+    /* ===== BALANCE CARD ===== */
+    .balance-card {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 24px;
+      align-items: start;
+    }
+
+    .balance-main {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .balance-value {
+      font-size: clamp(36px, 8vw, 48px);
+      font-weight: 700;
+      background: var(--grad-brand);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      line-height: 1.1;
+    }
+
+    /* ===== GRID ===== */
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+      gap: 24px;
+      margin-bottom: 32px;
+    }
+
+    /* ===== BUTTONS ===== */
+    .btn {
+      border: none;
+      border-radius: 14px;
+      font-weight: 600;
+      padding: 14px 28px;
+      cursor: pointer;
+      transition: all 0.15s ease;
+      font-size: var(--text-base);
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      text-decoration: none;
+    }
+
+    .btn-primary {
+      background: var(--grad-brand);
+      color: white;
+      box-shadow: 0 4px 20px rgba(123,110,246,0.40);
+    }
+
+    .btn-primary:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 6px 28px rgba(123,110,246,0.55);
+    }
+
+    .btn-primary:active { transform: scale(0.98); }
+
+    .btn-secondary {
+      background: rgba(255,255,255,0.08);
+      color: var(--text-primary);
+      border: 0.8px solid rgba(255,255,255,0.12);
+    }
+
+    .btn-secondary:hover {
+      background: rgba(255,255,255,0.12);
+      border-color: rgba(255,255,255,0.20);
+    }
+
+    /* ===== INPUTS ===== */
+    .input-group {
+      position: relative;
+    }
+
+    .input {
+      background: rgba(255,255,255,0.06);
+      border: 0.8px solid rgba(255,255,255,0.12);
+      border-radius: 12px;
+      color: var(--text-primary);
+      padding: 14px 20px;
+      font-size: var(--text-base);
+      width: 100%;
+      transition: all 0.2s ease;
+    }
+
+    .input:focus {
+      border-color: rgba(123,110,246,0.60);
+      box-shadow: 0 0 0 3px rgba(123,110,246,0.15);
+      outline: none;
+      background: rgba(255,255,255,0.10);
+    }
+
+    /* ===== TRANSACTIONS ===== */
+    .transaction {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 16px 0;
+      border-bottom: 1px solid rgba(255,255,255,0.06);
+    }
+
+    .transaction:last-child { border-bottom: none; }
+
+    .transaction-info {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .transaction-amount {
+      font-weight: 600;
+      font-size: var(--text-lg);
+    }
+
+    .amount-positive { color: var(--cyan); }
+    .amount-negative { color: var(--coral); }
+
+    /* ===== CHARTS ===== */
+    .chart-container {
+      position: relative;
+      height: 280px;
+      border-radius: 16px;
+    }
+
+    /* ===== TOASTS ===== */
+    .toast {
+      position: fixed;
+      bottom: 32px;
+      right: 32px;
+      background: rgba(28,26,46,0.92);
+      border: 0.8px solid rgba(255,255,255,0.12);
+      border-radius: 14px;
+      backdrop-filter: blur(20px);
+      box-shadow: 0 8px 32px rgba(0,0,0,0.4);
+      padding: 14px 20px;
+      transform: translateX(400px);
+      transition: transform 0.3s ease;
+      z-index: 1000;
+      max-width: 380px;
+    }
+
+    .toast.show { transform: translateX(0); }
+
+    .toast--success { border-left: 3px solid var(--cyan); }
+    .toast--error   { border-left: 3px solid var(--coral); }
+
+    /* ===== RESPONSIVO ===== */
+    @media (max-width: 1024px) {
+      .app { grid-template-columns: 1fr; }
+      .sidebar { 
+        position: fixed;
+        inset: 0;
+        z-index: 2000;
+        transform: translateX(-100%);
+        transition: transform 0.3s ease;
+      }
+      .sidebar.open { transform: translateX(0); }
+    }
+
+    @media (prefers-color-scheme: light) {
+      body { background: #F2F0FF; }
+      .card {
+        background: rgba(255,255,255,0.70);
+        border-color: rgba(123,110,246,0.15);
+        box-shadow: 0 4px 24px rgba(123,110,246,0.10), inset 0 1px 0 rgba(255,255,255,0.8);
+      }
+      .sidebar, .header {
+        background: rgba(242,240,255,0.90);
+        border-color: rgba(123,110,246,0.12);
+      }
+      .input {
+        background: rgba(255,255,255,0.50);
+        color: #1a1535;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <!-- ===== SIDEBAR ===== -->
+    <nav class="sidebar" id="sidebar">
+      <div class="logo">
+        <!-- Seu SVG original -->
+        <svg width="40" height="40" viewBox="0 0 48 48" fill="none">
+          <rect width="48" height="48" rx="14" fill="url(#grad)"/>
+          <rect x="2" y="2" width="22" height="20" rx="9" fill="white" fill-opacity="0.15"/>
+          <rect x="12" y="12" width="24" height="5" rx="2.5" fill="white" fill-opacity="0.95"/>
+          <rect x="12" y="12" width="5" height="24" rx="2.5" fill="white" fill-opacity="0.95"/>
+          <rect x="12" y="24" width="17" height="5" rx="2.5" fill="white" fill-opacity="0.95"/>
+          <defs>
+            <linearGradient id="grad" x1="0" y1="0" x2="48" y2="48">
+              <stop offset="0%" stop-color="#7B6EF6"/>
+              <stop offset="100%" stop-color="#3ECFB2"/>
+            </linearGradient>
+          </defs>
+        </svg>
+        <span class="logo-text">fluxo</span>
+      </div>
+
+      <ul class="nav-list">
+        <li class="nav-item active" data-page="dashboard">
+          <span>📊</span> Dashboard
+        </li>
+        <li class="nav-item" data-page="transactions">
+          <span>💳</span> Transações
+        </li>
+        <li class="nav-item" data-page="categories">
+          <span>📂</span> Categorias
+        </li>
+        <li class="nav-item" data-page="reports">
+          <span>📈</span> Relatórios
+        </li>
+        <li class="nav-item" data-page="settings">
+          <span>⚙️</span> Configurações
+        </li>
+      </ul>
+    </nav>
+
+    <div>
+      <!-- ===== HEADER ===== -->
+      <header class="header">
+        <div style="display: flex; align-items: center; gap: 16px;">
+          <button class="btn btn-secondary" id="menuToggle">☰</button>
+          <h1 style="font-size: var(--text-xl); font-weight: 600;">Dashboard</h1>
+        </div>
+        <div class="header-actions">
+          <div style="display: flex; align-items: center; gap: 8px; padding: 8px 16px; background: rgba(255,255,255,0.06); border-radius: 12px;">
+            <span>👤</span>
+            <span style="font-weight: 500;">Maria Silva</span>
+          </div>
+        </div>
+      </header>
+
+      <!-- ===== MAIN ===== -->
+      <main class="main">
+        <!-- Balance Card -->
+        <div class="card balance-card card--iris">
+          <div class="balance-main">
+            <div style="color: var(--text-muted); font-size: var(--text-sm);">Saldo atual</div>
+            <div class="balance-value">R$ 8.742,30</div>
+            <div style="display: flex; gap: 24px; font-size: var(--text-sm); color: var(--text-secondary);">
+              <div>+3,2% este mês</div>
+              <div>Meta: R$ 10.000</div>
+            </div>
+          </div>
+          <div style="display: flex; flex-direction: column; gap: 12px;">
+            <button class="btn btn-primary">+ Nova entrada</button>
+            <button class="btn btn-secondary">Nova saída</button>
+          </div>
+        </div>
+
+        <div class="grid">
+          <!-- Stats Cards -->
+          <div class="card">
+            <div style="color: var(--text-muted); font-size: var(--text-xs); font-weight: 500; margin-bottom: 8px;">Receitas</div>
+            <div style="font-size: var(--text-2xl); font-weight: 700; color: var(--cyan);">R$ 12.450</div>
+            <div style="color: var(--cyan); font-size: var(--text-sm);">+12% do mês passado</div>
+          </div>
+
+          <div class="card">
+            <div style="color: var(--text-muted); font-size: var(--text-xs); font-weight: 500; margin-bottom: 8px;">Despesas</div>
+            <div style="font-size: var(--text-2xl); font-weight: 700; color: var(--coral);">R$ 3.708</div>
+            <div style="color: var(--coral); font-size: var(--text-sm);">-8% do mês passado</div>
+          </div>
+
+          <div class="card">
+            <div style="color: var(--text-muted); font-size: var(--text-xs); font-weight: 500; margin-bottom: 8px;">Economia</div>
+            <div style="font-size: var(--text-2xl); font-weight: 700; color: var(--iris);">R$ 8.742</div>
+            <div style="color: var(--iris); font-size: var(--text-sm);">73% da meta</div>
+          </div>
+        </div>
+
+        <div class="grid">
+          <!-- Chart -->
+          <div class="card" style="grid-column: span 2;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px;">
+              <div>
+                <div style="font-size: var(--text-lg); font-weight: 600; margin-bottom: 4px;">Evolução do saldo</div>
+                <div style="color: var(--text-muted);">Últimos 30 dias</div>
+              </div>
+              <select class="input" style="width: 140px;">
+                <option>1M</option>
+                <option>3M</option>
+                <option>6M</option>
+                <option>1A</option>
+              </select>
+            </div>
+            <div class="chart-container">
+              <canvas id="balanceChart"></canvas>
+            </div>
+          </div>
+        </div>
+
+        <!-- Recent Transactions -->
+        <div class="card">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px;">
+            <div>
+              <div style="font-size: var(--text-lg); font-weight: 600;">Últimas transações</div>
+              <div style="color: var(--text-muted); font-size: var(--text-sm);">Hoje</div>
+            </div>
+            <a href="#" class="btn btn-secondary" style="font-size: var(--text-sm);">Ver todas</a>
+          </div>
+
+          <div class="transaction">
+            <div class="transaction-info">
+              <div style="font-weight: 500;">Supermercado Central</div>
+              <div style="font-size: var(--text-xs); color: var(--text-muted);">Alimentação</div>
+            </div>
+            <div class="transaction-amount amount-negative">- R$ 245,80</div>
+          </div>
+
+          <div class="transaction">
+            <div class="transaction-info">
+              <div style="font-weight: 500;">Freelance Design</div>
+              <div style="font-size: var(--text-xs); color: var(--text-muted);">Trabalho</div>
+            </div>
+            <div class="transaction-amount amount-positive">+ R$ 1.200,00</div>
+          </div>
+
+          <div class="transaction">
+            <div class="transaction-info">
+              <div style="font-weight: 500;">Netflix</div>
+              <div style="font-size: var(--text-xs); color: var(--text-muted);">Entretenimento</div>
+            </div>
+            <div class="transaction-amount amount-negative">- R$ 55,90</div>
+          </div>
+        </div>
+      </main>
+    </div>
+  </div>
+
+  <!-- Toast Example -->
+  <div class="toast toast--success" id="toast">
+    Transação adicionada com sucesso!
+  </div>
+
+  <script>
+    // ===== CHART.JS CONFIG =====
+    Chart.defaults.color = 'rgba(255,255,255,0.5)';
+    Chart.defaults.borderColor = 'rgba(255,255,255,0.06)';
+    Chart.defaults.font.family = 'Inter, sans-serif';
+    Chart.defaults.font.size = 12;
+
+    // Balance Chart
+    const ctx = document.getElementById('balanceChart').getContext('2d');
+    new Chart(ctx, {
+      type: 'line',
+      data: {
+        labels: ['1 Jan', '8 Jan', '15 Jan', '22 Jan', '29 Jan'],
+        datasets: [{
+          label: 'Saldo',
+          data: [6500, 7200, 6800, 8200, 8742],
+          borderColor: '#7B6EF6',
+          backgroundColor: 'rgba(123,110,246,0.15)',
+          borderWidth: 2,
+          pointBackgroundColor: '#7B6EF6',
+          pointRadius: 4,
+          tension: 0.4,
+          fill: true,
+          pointHoverRadius: 6
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: { legend: { display: false } },
+        scales: {
+          x: { grid: { color: 'rgba(255,255,255,0.06)' } },
+          y: { 
+            grid: { color: 'rgba(255,255,255,0.06)' },
+            ticks: { callback: value => 'R$ ' + value.toLocaleString() }
+          }
+        }
+      }
+    });
+
+    // ===== INTERAÇÕES =====
+    const sidebar = document.getElementById('sidebar');
+    const menuToggle = document.getElementById('menuToggle');
+    const navItems = document.querySelectorAll('.nav-item');
+    const toast = document.getElementById('toast');
+
+    // Mobile menu
+    menuToggle.addEventListener('click', () => {
+      sidebar.classList.toggle('open');
+    });
+
+    // Nav active
+    navItems.forEach(item => {
+      item.addEventListener('click', () => {
+        navItems.forEach(i => i.classList.remove('active'));
+        item.classList.add('active');
+      });
+    });
+
+    // Demo toast
+    setTimeout(() => {
+      toast.classList.add('show');
+      setTimeout(() => toast.classList.remove('show'), 3000);
+    }, 1000);
+
+    // Close sidebar on overlay click (mobile)
+    document.addEventListener('click', (e) => {
+      if (window.innerWidth <= 1024 && e.target === sidebar) {
+        sidebar.classList.remove('open');
+      }
+    });
+  </script>
+</body>
+</html>
